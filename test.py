@@ -4,19 +4,19 @@
 #Date: 2020-07-03
 #Description:
 import tensorflow as tf
-keras = tf.keras
-import keras
+#keras = tf.keras
+#import keras
 import json
 import numpy as np
 import cv2
 import os
-from keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 from liveness import create_model
 
-model_pth = 'models/liveness3.0.h5'
-# dataset_pth = r'D:\images\fakenessDataset\test'
-dataset_pth = r'D:\images\fakenessTestset2\2020-04-22'
+model_pth = 'models/liveness3.1.h5'
+
+dataset_pth = r'D:\wwwroot\github\moire_detection\checkpoint\test_recapture_bak\test'
 
 height = 32
 width = 32
@@ -29,7 +29,7 @@ def main():
         dataset_pth,
         batch_size=32,
         target_size=(height,width),
-        class_mode=None,
+        class_mode='categorical',
         shuffle=False
     )
     filename = dataloader.filenames
@@ -76,6 +76,6 @@ def display():
     print(positives)
 
 if __name__ == '__main__':
-    # main()
-    display()
+     main()
+    #display()
 

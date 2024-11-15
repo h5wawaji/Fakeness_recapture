@@ -1,34 +1,27 @@
-import tensorflow as tf
-keras = tf.keras
-from keras.models import Sequential
-from keras.layers.normalization import BatchNormalization
-from keras.layers.convolutional import Conv2D
-from keras.layers.convolutional import MaxPooling2D
-from keras.layers.core import Activation
-from keras.layers.core import Flatten
-from keras.layers.core import Dropout
-from keras.layers.core import Dense
-from keras import backend as K
+import tensorflow.compat.v1 as tf #import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import BatchNormalization, Conv2D, MaxPooling2D, Activation, Flatten, Dropout, Dense
 
 height = 32
 width = 32
 depth = 3
 
 def create_model():
-    
     model = Sequential()
     inputShape = (height, width, depth)
     chanDim = -1
 
-    # if we are using "channels first", update the input shape
+    # if we are using "channels last", update the input shape
     # and channels dimension
-    if K.image_data_format() == "channels_first":
+    if tf.keras.backend.image_data_format() == "channels_last":
+        inputShape = (height, width, depth)
+        chanDim = -1
+    else:
         inputShape = (depth, height, width)
         chanDim = 1
 
     # first CONV => RELU => CONV => RELU => POOL layer set
-    model.add(Conv2D(16, (3, 3), padding="same",
-        input_shape=inputShape))
+    model.add(Conv2D(16, (3, 3), padding="same", input_shape=inputShape))
     model.add(Activation("relu"))
     model.add(BatchNormalization(axis=chanDim))
     model.add(Conv2D(16, (3, 3), padding="same"))

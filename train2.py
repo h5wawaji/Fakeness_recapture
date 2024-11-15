@@ -4,12 +4,11 @@
 # Date: 2020-07-03
 # Description:
 
-import tensorflow.compat.v1 as tf
-#//import tensorflow as tf
+import tensorflow as tf
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping
 
-from liveness import create_model  # 确保这个模块是兼容tensorflow.keras的
+from liveness import create_model
 from tensorflow.keras.optimizers import Adam
 
 import os
@@ -31,8 +30,8 @@ def train():
         trainset,
         batch_size=32,
         target_size=(height, width),
-        color_mode='rgb',  # 确保color_mode设置为'rgb'，因为depth=3
-        class_mode='categorical'  # 如果你的标签是多分类的，使用'categorical'
+        color_mode='rgb',
+        class_mode='categorical'
     )
 
     valdataloader = generator.flow_from_directory(
@@ -43,40 +42,37 @@ def train():
         class_mode='categorical'
     )
 
-    #train_ckp = ModelCheckpoint(ckp_path, monitor='val_accuracy')  # 使用'val_accuracy'代替'val_acc'
-    #CHECKPOINT='liveness-'
-
-    CHECKPOINT='models'
-    filepath = os.path.join(CHECKPOINT, "weights-{epoch:02d}-{val_acc:.4f}.hdf5")
+    CHECKPOINT = 'models'
     filepath = os.path.join(CHECKPOINT, "weights-{epoch:02d}-{val_accuracy:.4f}.hdf5")
 
-    train_ckp = ModelCheckpoint(filepath, monitor='val_accuracy', verbose=1, save_best_only=True, mode='max')
+    train_ckp = ModelCheckpoint(
+        filepath,
+        monitor='val_accuracy',
+        verbose=1,
+        save_best_only=False,  # 保存所有epochs的模型，而不只是最好的
+        mode='max',
+        period=5  # 每5个epochs保存一次模型
+    )
+
+    early_stopping = EarlyStopping(
+        monitor='val_accuracy',
+        patience=10,
+        mode='max',
+        min_delta=0.001  # 设置一个最小变化值，以减少因小的波动而停止训练的情况
+    )
 
     optimizer = Adam(learning_rate=0.001)
-    early_stopping = EarlyStopping(monitor='val_accuracy', patience=10, mode='max')
-    model = create_model()  # 确保这个函数返回一个兼容的tensorflow.keras模型
+    model = create_model()
     model.compile(loss='categorical_crossentropy', optimizer=optimizer, metrics=['accuracy'])
     print('=' * 40 + '开始训练' + '=' * 40)
     model.fit(
         traindataloader,
         epochs=100,
         verbose=1,
-        callbacks=[train_ckp], # ,early_stopping
+        callbacks=[train_ckp, early_stopping],  # 使用两个回调
         validation_data=valdataloader,
         workers=1# linux 才可以多线程 2 windows 改为 1
     )
-
-    # model.fit_generator(
-    #     traindataloader,
-    #     epochs=100,
-    #     verbose=1,
-    #     callbacks=[train_ckp],
-    #     validation_data=valdataloader,
-    #     workers=2
-    #
-    # )
-
-    # model.save_weights(r'models\liveness3.1.h5')
 
 if __name__ == "__main__":
     train()
