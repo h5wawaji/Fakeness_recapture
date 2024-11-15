@@ -14,7 +14,7 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 from liveness import create_model
 
-model_pth = 'models/liveness3.1.h5'
+model_pth = 'models/weights-10-1.0000.hdf5'
 
 dataset_pth = r'D:\wwwroot\github\moire_detection\checkpoint\test_recapture_bak\test'
 
